@@ -1,0 +1,219 @@
+<head>
+    <title>Simple To-Do List</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin-top: 20px;
+            background-color: #ffffff;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+
+        .input-area {
+            display: flex;
+            margin-bottom: 25px;
+        }
+
+        #task-input {
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            margin-right: 10px;
+        }
+
+        #task-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        #add-task-btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #add-task-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #task-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #task-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        #task-list li:last-child {
+            border-bottom: none;
+        }
+
+        #task-list li span {
+            flex: 1;
+            cursor: pointer;
+            padding: 5px;
+            word-break: break-all;
+        }
+
+        #task-list li.completed span {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+
+        .delete-btn {
+            padding: 6px 10px;
+            font-size: 14px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        #task-list li:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Simple To-Do List</h1>
+        <div class="input-area">
+            <input type="text" id="task-input" placeholder="Add a new task...">
+            <button id="add-task-btn">Add Task</button>
+        </div>
+        <ul id="task-list">
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const taskInput = document.getElementById('task-input');
+            const addTaskBtn = document.getElementById('add-task-btn');
+            const taskList = document.getElementById('task-list');
+
+            class Task {
+                constructor(description) {
+                    this.id = Date.now();
+                    this.description = description;
+                    this.isCompleted = false;
+                }
+            }
+
+            let tasks = [];
+
+            function renderTasks() {
+                taskList.innerHTML = '';
+
+                tasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.dataset.id = task.id;
+
+                    if (task.isCompleted) {
+                        li.classList.add('completed');
+                    }
+
+                    const taskSpan = document.createElement('span');
+                    taskSpan.textContent = task.description;
+                    taskSpan.classList.add('task-text');
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.classList.add('delete-btn');
+
+                    li.appendChild(taskSpan);
+                    li.appendChild(deleteBtn);
+                    taskList.appendChild(li);
+                });
+            }
+
+            function addTask() {
+                const description = taskInput.value.trim();
+                if (description === '') return;
+
+                tasks.push(new Task(description));
+                renderTasks();
+                taskInput.value = '';
+                taskInput.focus();
+            }
+
+            function toggleTaskComplete(taskId) {
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.isCompleted = !task.isCompleted;
+                }
+                renderTasks();
+            }
+
+            function deleteTask(taskId) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                renderTasks();
+            }
+
+            addTaskBtn.addEventListener('click', addTask);
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            });
+
+            taskList.addEventListener('click', (e) => {
+                const listItem = e.target.closest('li');
+                if (!listItem) return;
+
+                const taskId = Number(listItem.dataset.id);
+
+                if (e.target.classList.contains('delete-btn')) {
+                    deleteTask(taskId);
+                } else if (e.target.classList.contains('task-text')) {
+                    toggleTaskComplete(taskId);
+                }
+            });
+
+            renderTasks();
+        });
+    </script>
+</body>
+
+</html>
